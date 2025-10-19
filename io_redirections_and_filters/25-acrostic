@@ -1,2 +1,2 @@
 #!/bin/bash
-printf "%s" $(cut -c 1) && echo
+xargs -I{} cut -c 1
