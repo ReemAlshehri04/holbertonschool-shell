@@ -1,2 +1,2 @@
 #!/bin/bash
-echo '\"Best School\"' | tr -d '\n' ; echo '\?|^\*\^|\*\:\)'
+echo '\"Best School\"\?|^\*\^|\*\:\)'
