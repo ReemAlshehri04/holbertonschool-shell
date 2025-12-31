@@ -1,2 +1,86 @@
 #!/bin/bash
-printf "%o" $((5#$(echo "$WATER" | tr water 01234) + 5#$(echo "$STIR" | tr stir. 01234))) | tr 01234567 bestchol
+# Function to convert from custom base to decimal
+custom_to_decimal() {
+    local num="$1"
+    local base_str="$2"
+    
+    # Get unique characters in order of first appearance
+    local unique_base=""
+    for ((i=0; i<${#base_str}; i++)); do
+        char="${base_str:$i:1}"
+        if [[ ! "$unique_base" == *"$char"* ]]; then
+            unique_base="$unique_base$char"
+        fi
+    done
+    
+    local base=${#unique_base}
+    local decimal=0
+    
+    # Process each character
+    for ((i=0; i<${#num}; i++)); do
+        char="${num:$i:1}"
+        # Skip characters not in base (like dots)
+        if [[ "$unique_base" == *"$char"* ]]; then
+            # Find position in base
+            for ((j=0; j<${#unique_base}; j++)); do
+                if [ "${unique_base:$j:1}" = "$char" ]; then
+                    decimal=$((decimal * base + j))
+                    break
+                fi
+            done
+        fi
+    done
+    
+    echo $decimal
+}
+
+# Function to convert decimal to custom base
+decimal_to_custom() {
+    local num=$1
+    local base_str="$2"
+    
+    # Get unique characters
+    local unique_base=""
+    for ((i=0; i<${#base_str}; i++)); do
+        char="${base_str:$i:1}"
+        if [[ ! "$unique_base" == *"$char"* ]]; then
+            unique_base="$unique_base$char"
+        fi
+    done
+    
+    local base=${#unique_base}
+    local result=""
+    
+    if [ $num -eq 0 ]; then
+        echo "${unique_base:0:1}"
+        return
+    fi
+    
+    while [ $num -gt 0 ]; do
+        remainder=$((num % base))
+        result="${unique_base:$remainder:1}$result"
+        num=$((num / base))
+    done
+    
+    echo "$result"
+}
+
+# Main script
+WATER_BASE="water"
+STIR_BASE="stir"
+RESULT_BASE="bestcho1"
+
+# Convert WATER to decimal
+water_dec=$(custom_to_decimal "$WATER" "$WATER_BASE")
+
+# Convert STIR to decimal
+stir_dec=$(custom_to_decimal "$STIR" "$STIR_BASE")
+
+# Add them
+total=$((water_dec + stir_dec))
+
+# Convert to result base
+result=$(decimal_to_custom $total "$RESULT_BASE")
+
+# Print result
+echo "$result"
